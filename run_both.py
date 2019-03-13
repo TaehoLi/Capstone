@@ -34,6 +34,7 @@ fps_time = 0
 # 코덱 설정
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 # 파일에 저장하기 위해 VideoWriter 객체를 생성
+# 영상 resolution이 반드시 640x480이여만 저장
 out1 = cv2.VideoWriter('./data/output3.avi', fourcc, 20.0, (640,480))
 out2 = cv2.VideoWriter('./data/output4.avi', fourcc, 20.0, (640,480))
 
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     parser1.add_argument('--video', type=str, default=None)
     # 2
     parser2 = argparse.ArgumentParser(description='tf-pose-estimation Video')
-    #parser2.add_argument('--camera', type=int, default=None)
+    parser2.add_argument('--camera', type=int, default=None)
     parser2.add_argument('--video', type=str, default='')
     parser2.add_argument('--resize', type=str, default='432x368',
                         help='if provided, resize images before they are processed. default=0x0, Recommends : 432x368 or 656x368 or 1312x736 ')
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     # data plotting
     lstX = []
     lstY = []
-    threshold = 0.1
+    threshold = 0.3 # 바꿔야됨
     
     plt.ion()
     fig = plt.figure(num='real-time plotting')
@@ -135,30 +136,30 @@ if __name__ == '__main__':
             # point 찾기
             a = TfPoseEstimator.get_centers(image1, humans1, imgcopy=False)
             b = TfPoseEstimator.get_centers(image2, humans2, imgcopy=False)
+            
 
-            for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]:
-                webcam_points = [0]*18
-                video_points = [0]*18
-                dist = [0]*18
-
+            L2_norm = []
+            L2_nonzero = []
+            for i in range(len(b)):
                 try:
-                    webcam_points[i] = np.array(a[i])
-                    video_points[i] = np.array(b[i])
+                    L2_norm.append(np.linalg.norm(np.array(a[i])-np.array(b[i]), ord=2))
                 except:
-                    if webcam_points[i] is 0:
-                        pass
-                    else:
-                        webcam_points[i] = np.array(a[i])
-                        
-                    if video_points[i] is 0:
-                        pass
-                    else:
-                        video_points[i] = np.array(b[i])
-
-                dist[i] = np.linalg.norm(webcam_points[i] - video_points[i])
-                
-            add = np.sum(dist)
-            result = (1.0*add) / 1000
+                    L2_norm.append(0.0)
+                    pass
+                if L2_norm[i] is not 0.0:
+                    L2_nonzero.append(L2_norm[i])
+                else:
+                    pass
+            
+            normalize = []
+            if len(L2_nonzero) is 0:
+                normalize.append(0.0)
+            else:
+                for i in range(len(L2_nonzero)):
+                    normalize.append((L2_nonzero[i]-min(L2_nonzero))/(max(L2_nonzero)-min(L2_nonzero)))
+            #print(normalize)
+            result = np.sum(normalize)/len(normalize)
+            #print(result)
 
             c = datetime.now()
             d = c.strftime('%S%f')
@@ -230,4 +231,3 @@ if __name__ == '__main__':
 logger1.debug('finished+')
 logger2.debug('finished+')
 
-    
