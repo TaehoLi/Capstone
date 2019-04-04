@@ -20,8 +20,9 @@ while True:
     i += 1
 """
 plt.ion()
-for i in range(3000):
+for i in range(100):
     plt.plot(np.random.rand(10))
     plt.show()
+    plt.pause(0.1)
 #안됨 뭔가 gui상에서 충돌이 일어나는듯
 """
