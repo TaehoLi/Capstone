@@ -182,6 +182,7 @@ if __name__ == '__main__':
             else:
                 line1.set_data(lstX, lstY)
                 plt.show()
+                plt.pause(0.0001) # must need in windows display
             
             
             # 임계치 조정
