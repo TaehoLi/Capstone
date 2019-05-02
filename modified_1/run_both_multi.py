@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 import argparse
 import logging
 import time
@@ -31,10 +33,10 @@ logger2.addHandler(ch2)
 fps_time = 0
 
 
-# 코덱 설정
+# codec
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-# 파일에 저장하기 위해 VideoWriter 객체를 생성
-# 영상 resolution이 반드시 640x480이여만 저장
+# VideoWriter object
+# video resolution should be 640x480(must be same)
 #out1 = cv2.VideoWriter('./data/output3.avi', fourcc, 20.0, (640,480))
 #out2 = cv2.VideoWriter('./data/output4.avi', fourcc, 20.0, (640,480))
 
@@ -93,7 +95,7 @@ if __name__ == '__main__':
     lstX = []
     lstY1 = []
     lstY2 = []
-    threshold = 0.5 # 바꿔야됨
+    threshold = 0.5 # have to change
     
     plt.ion()
     fig1 = plt.figure(num='real-time plotting1')
@@ -113,7 +115,7 @@ if __name__ == '__main__':
     line2, = sf2.plot([0, 6000000], [0,1], 'b-')
     
     
-    while cap2.isOpened(): # 비디오가 잡히면 loop
+    while cap2.isOpened(): #  loop
         try:
             ret_val1, image1 = cap1.read()
             ret_val2, image2 = cap2.read()
@@ -122,14 +124,17 @@ if __name__ == '__main__':
             humans1 = e1.inference(image1, resize_to_default=(w1 > 0 and h1 > 0), upsample_size=args1.resize_out_ratio)
             logger2.debug('image process+')
             humans2 = e2.inference(image2, resize_to_default=(w2 > 0 and h2 > 0), upsample_size=args2.resize_out_ratio)
-            ### 2:Video) 만약 --showBG=False 이면 skeleton만 출력
+            ### 2:Video) if(--showBG=False) print skeleton
             if not args2.showBG:
                 image2 = np.zeros(image2.shape)
             ###
             logger1.debug('postprocess+')
+            a = TfPoseEstimator.get_centers(image1, humans1, imgcopy=False) #all points
             image1 = TfPoseEstimator.draw_humans(image1, humans1, imgcopy=False)
             logger2.debug('postprocess+')
-            image2 = TfPoseEstimator.draw_humans(image2, humans2, imgcopy=False)
+            b = TfPoseEstimator.get_centers(image2, humans2, imgcopy=False) #상체 points
+            c = TfPoseEstimator.get_centers(image2, humans2, imgcopy=False) #하체 points
+            image2 = TfPoseEstimator.draw_nothing(image2, humans2, imgcopy=False)
 
             """
             1) 실시간으로 동영상의 점을 불러온다 (점의 좌표를 알아야함)
@@ -140,11 +145,6 @@ if __name__ == '__main__':
             6) result를 y축 time을 x축으로 실시간 데이터 plotting
             7) result가 어떤 threshold를 넘어설때 마다 warning을 cv2.putText로 출력해준다.
             """
-
-            # point 찾기
-            a = TfPoseEstimator.get_centers(image1, humans1, imgcopy=False)
-            b = TfPoseEstimator.get_centers(image2, humans2, imgcopy=False) #상체
-            c = TfPoseEstimator.get_centers(image2, humans2, imgcopy=False) #하체
             
             
             if 0 in b:
