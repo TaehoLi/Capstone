@@ -1,0 +1,8 @@
+cd desktop/Capstone/modified_2
+python run_both_multi.py --model=mobilenet_v2_small --video=./data/modified2.mp4 --camera=0
+python run_both_multi.py --model=mobilenet_v2_small --video=./data/PullUp.mp4 --camera=0
+python run_webcam_json.py --model=mobilenet_v2_large --video=./data/modified2.mp4 --camera=0
+python run_both_multi2.py --model=mobilenet_v2_small --video=./data/modified2.mp4 --camera=0
+
+
+Á¾·á) ESC ÈÄ Q
